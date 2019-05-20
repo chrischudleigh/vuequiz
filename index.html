@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+      #qtns li{
+        padding-left:2.5rem
+      }
+    </style>
+  </head>
+  <body>
+    <div id="quiz-app" class="container">
+      <h1>Welcome to my Quiz</h1>
+      <quiz-question
+        :questions="questions"
+        :current-qtn="currentQtn"
+        @increment-qtn="(currentQtn < questions.length)?currentQtn++:''"
+        @decrement-qtn="(currentQtn > 1)?currentQtn--:''"
+        @quiz-end="quizFinished=true"
+        v-show="quizFinished===false"
+      ></quiz-question>
+
+      <quiz-score
+        :questions="questions"
+        v-show="quizFinished===true"
+        @quiz-reset="quizReset"
+      ></quiz-score>
+
+    </div>
+
+    <template id="quiz-question">
+      <div  class="card" >
+          <div class="card-header"><strong>{{ questions[currentQtn-1].text }}</strong></div>
+        <ul class="list-group" id="qtns">
+          <li
+            v-for="choice in questions[currentQtn-1].choices"
+            :choice="choice"
+            is="question-choice"
+            :key="choice.id"
+            :current-qtn="currentQtn"
+            :questions="questions"
+            class="list-group-item"            
+          ></li>        
+      <li class="list-group-item">
+        <button class="btn btn-primary" @click="$emit('decrement-qtn')" :disabled="currentQtn<=1" >Prev</button>
+        <button class="btn btn-primary" @click="$emit('increment-qtn')"  :disabled="currentQtn>=questions.length" >Next</button>
+        <button class="btn btn-success" @click="$emit('quiz-end')" v-show="currentQtn===questions.length" >Finish</button>
+      </li>
+      </ul>
+    </div>
+    </template>
+
+    <template id="question-choice">
+      <li  class="form-check">
+        <input
+        class="form-check-input"
+          type="radio"
+          v-model="questions[currentQtn-1].userChoice"
+          :value="choice.id"
+          name="answers"
+          :id="'choice'+choice.id"
+        />
+        <label  class="form-check-label" :for="'choice'+choice.id"> {{ choice.text }}</label>
+      </li>
+    </template>
+
+    <template id="quiz-score">
+        <div  class="card" >
+            <div class="card-header">Results:</div>
+            <ul class="list-group">
+                <li class="list-group-item">Well done. Your score was {{ score }} out of {{ questions.length }}.</li>
+                <li class="list-group-item"><button class="btn btn-primary btn-sm" @click="$emit('quiz-reset')">Try again</button></li>
+        </ul>
+      </div>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
